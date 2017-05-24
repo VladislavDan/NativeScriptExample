@@ -1,7 +1,7 @@
 {
-	"time": "Tue May 23 2017 17:26:52 GMT+0400 (Russia TZ 3 Standard Time)",
+	"time": "Wed May 24 2017 14:23:57 GMT+0400 (Russia TZ 3 Standard Time)",
 	"bundle": false,
 	"release": false,
-	"changesRequireBuild": true,
+	"changesRequireBuild": false,
 	"changesRequireBuildTime": "Tue May 23 2017 17:26:52 GMT+0400 (Russia TZ 3 Standard Time)"
 }

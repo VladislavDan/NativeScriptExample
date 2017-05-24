@@ -1,3 +1,6 @@
-exports.pageLoaded = function() {
-
+exports.pageLoaded = function () {
+    console.log({
+        type: "Apple",
+        color: "Red"
+    });
 };

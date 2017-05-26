@@ -1,4 +1,4 @@
-<Page>
+<Page loaded="loaded">
     <ActionBar title="GitHub Repositories" class="action-bar"></ActionBar>
     <StackLayout orientation="vertical">
         <ListView items="{{ reposList }}" height="100%">

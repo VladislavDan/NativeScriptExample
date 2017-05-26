@@ -15,7 +15,3 @@ exports.loaded = function(args) {
     reposList.empty();
     reposList.load();
 };
-
-exports.listViewItemTap = function() {
-    console.log("Item tapped!");
-};

@@ -8,7 +8,6 @@ var pageData = new observableModule.fromObject({
 });
 
 exports.loaded = function(args) {
-    console.log("Loaded");
     page = args.object;
     page.bindingContext = pageData;
 

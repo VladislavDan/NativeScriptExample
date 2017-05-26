@@ -6,10 +6,12 @@ function ReposListViewModel(items) {
     var viewModel = new ObservableArray(items);
 
     viewModel.load = function () {
+
         const request = fetch('https://api.github.com/search/repositories?q=a+in:name,description&sort=stars&order=desc')
             .then((respose) => {
-                return respose.json()
+                return respose.json();
             });
+
         return Rx.Observable.from(request)
             .map((response)=> {
                 return response.items;
@@ -29,6 +31,7 @@ function ReposListViewModel(items) {
             viewModel.pop();
         }
     };
+
     return viewModel;
 }
 

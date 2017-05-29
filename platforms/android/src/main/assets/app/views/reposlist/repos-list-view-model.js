@@ -3,22 +3,30 @@ var Rx = require("rxjs/Rx");
 var ObservableArray = require("data/observable-array").ObservableArray;
 
 function ReposListViewModel(items) {
+
     var viewModel = new ObservableArray(items);
 
-    viewModel.load = function () {
-
-        const request = fetch('https://api.github.com/search/repositories?q=a+in:name,description&sort=stars&order=desc')
+    var response = function () {
+        return fetch('https://api.github.com/repositories')
             .then((respose) => {
                 return respose.json();
             });
+    }();
 
-        return Rx.Observable.from(request)
-            .map((response)=> {
-                return response.items;
+    viewModel.load = function (searchText) {
+
+        return Rx.Observable.from(response)
+            .map((response) => {
+                return response;
             })
             .concatMap(repos => repos)
+            .filter((repos) => {
+                return searchText != ""
+                    ? repos.name.indexOf(searchText) != -1
+                    : true;
+            })
             .catch((error) => {
-                console.log("caught error, continuing" + error);
+                console.log("caught error" + error);
                 return Rx.Observable.empty();
             })
             .subscribe((repos) => {

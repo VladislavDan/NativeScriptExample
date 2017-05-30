@@ -1,0 +1,7 @@
+<Page loaded="loaded">
+    <StackLayout orientation="vertical">
+        <Image src="{{ avatar }}"/>
+        <Label text="{{ name }}" tap="onTap"/>
+        <Label text="{{ description }}" />
+    </StackLayout>
+</Page>

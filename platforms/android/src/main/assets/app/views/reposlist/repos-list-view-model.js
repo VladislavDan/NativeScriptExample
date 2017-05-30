@@ -28,7 +28,6 @@ function ReposListViewModel(items) {
             })
             .catch((error) => {
                 console.log("caught error" + error);
-                return Rx.Observable.empty();
             })
             .subscribe((repos) => {
                 viewModel.push(repos);

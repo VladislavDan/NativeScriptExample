@@ -13,9 +13,10 @@ function ReposListViewModel(items) {
             });
     }();
 
-    viewModel.load = function (searchText) {
+    viewModel.loadChannel = new Rx.BehaviorSubject();
 
-        return Rx.Observable.from(response)
+    viewModel.loadChannel.subscribe((searchText) => {
+        Rx.Observable.from(response)
             .map((response) => {
                 return response;
             })
@@ -32,13 +33,15 @@ function ReposListViewModel(items) {
             .subscribe((repos) => {
                 viewModel.push(repos);
             });
-    };
+    });
 
-    viewModel.empty = function () {
+    viewModel.clearChannel = new Rx.BehaviorSubject();
+
+    viewModel.clearChannel.subscribe(() => {
         while (viewModel.length) {
             viewModel.pop();
         }
-    };
+    });
 
     return viewModel;
 }

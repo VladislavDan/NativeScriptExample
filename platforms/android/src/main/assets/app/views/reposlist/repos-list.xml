@@ -1,7 +1,7 @@
 <Page loaded="loaded">
     <ActionBar title="GitHub Repositories" class="action-bar"/>
     <StackLayout orientation="vertical">
-        <SearchBar id="sb_repos" hint="Search repositories" text="searchPhrase" submit="onSubmit" clear="onClear"/>
+        <SearchBar id="sb_repos" hint="Search repositories" submit="onSubmit" clear="onClear"/>
         <ListView id="lv_repos" items="{{ reposList }}" height="100%">
             <ListView.itemTemplate>
                 <Label text="{{ name }}"/>

@@ -11,16 +11,16 @@ exports.loaded = function (args) {
     page = args.object;
     page.bindingContext = pageData;
 
-    reposList.load("");
+    reposList.loadChannel.next("");
 };
 
 exports.onSubmit = function (args) {
     console.dir(args.object);
-    reposList.empty();
-    reposList.load(args.object.text);
+    reposList.clearChannel.next();
+    reposList.loadChannel.next(args.object.text);
 };
 
 exports.onClear = function () {
-    reposList.empty();
-    reposList.load("");
+    reposList.clearChannel.next();
+    reposList.loadChannel.next("");
 };

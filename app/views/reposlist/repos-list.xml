@@ -1,5 +1,6 @@
 <Page loaded="reposListLoaded">
     <ActionBar title="GitHub Repositories" class="action-bar"/>
+    <Progress value="{{ someProperty }}" />
     <StackLayout orientation="vertical">
         <SearchBar id="sb_repos" hint="Search repositories" submit="reposSearchSubmit" clear="reposSearchClear"/>
         <ListView id="lv_repos" items="{{ reposList }}" height="100%" itemTap="reposItemTap">

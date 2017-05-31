@@ -1,4 +1,7 @@
 <Page loaded="reposDetailsLoaded">
+    <ActionBar title="Repositories Details" class="action-bar">
+        <NavigationButton android.systemIcon="ic_menu_back" tap="goBack"/>
+    </ActionBar>
     <StackLayout orientation="vertical">
         <Image src="{{ avatar }}"/>
         <Label text="{{ name }}" />

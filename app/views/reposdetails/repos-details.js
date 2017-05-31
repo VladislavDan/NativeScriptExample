@@ -1,7 +1,11 @@
 var utilityModule = require("utils/utils");
 var frameModule = require("tns-core-modules/ui/frame");
+
+var NavUtils = require("./../utils/nav-utils");
 var ReposDetailViewModel = require("./repos-details-view-model");
+
 var page;
+var navUtils = new NavUtils();
 
 var reposDetails = new ReposDetailViewModel();
 
@@ -19,6 +23,10 @@ exports.openReposBrowserTap = function () {
 
 exports.openReposViewerTap = function () {
     openWebPage(reposDetails.get("url"));
+};
+
+exports.goBack = function () {
+    navUtils.goBack();
 };
 
 function openWebPage(url) {

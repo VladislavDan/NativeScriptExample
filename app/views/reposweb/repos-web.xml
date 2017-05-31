@@ -1,5 +1,9 @@
 <Page loaded="reposWebLoaded">
+    <ActionBar title="GitHub Web Page" class="action-bar">
+        <NavigationButton android.systemIcon="ic_menu_back" tap="goBack"/>
+    </ActionBar>
     <GridLayout>
-        <WebView src="{{ url }}" />
+        <WebView id="wv_repos_viewer" src="{{ url }}" row="0" col="0"/>
+        <ActivityIndicator busy="{{ isLoading }}" row="1" col="0" width="50" height="50"/>
     </GridLayout>
 </Page>

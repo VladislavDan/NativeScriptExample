@@ -4,7 +4,8 @@ var observableModule = require("data/observable");
 function ReposWebViewModel() {
 
     var viewModel = new observableModule.fromObject({
-        url: ""
+        url: "",
+        isLoading: true
     });
 
     viewModel.setDataChannel = new Rx.BehaviorSubject();
@@ -18,6 +19,13 @@ function ReposWebViewModel() {
         })
         .subscribe((url) => {
             viewModel.set("url", url);
+        });
+
+    viewModel.isLoadingChannel = new Rx.BehaviorSubject();
+
+    viewModel.isLoadingChannel
+        .subscribe((isLoading) => {
+            viewModel.set("isLoading", isLoading);
         });
 
     return viewModel;

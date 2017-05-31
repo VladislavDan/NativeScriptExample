@@ -1,6 +1,7 @@
 var observableModule = require("data/observable");
-var ReposListViewModel = require("./repos-list-view-model");
 var frameModule = require("tns-core-modules/ui/frame");
+
+var ReposListViewModel = require("./repos-list-view-model");
 
 var page;
 

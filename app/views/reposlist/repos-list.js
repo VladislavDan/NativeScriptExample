@@ -9,24 +9,24 @@ var pageData = new observableModule.fromObject({
     reposList: reposList
 });
 
-exports.loaded = function (args) {
+exports.reposListLoaded = function (args) {
     page = args.object;
     page.bindingContext = pageData;
 
     reposList.loadChannel.next("");
 };
 
-exports.onSubmit = function (args) {
+exports.reposSearchSubmit = function (args) {
     reposList.clearChannel.next();
     reposList.loadChannel.next(args.object.text);
 };
 
-exports.onClear = function () {
+exports.reposSearchClear = function () {
     reposList.clearChannel.next();
-    reposList.loadChannel.next("");
+    reposList.loadChannel.next("")
 };
 
-exports.listViewItemTap = function(args) {
+exports.reposItemTap = function(args) {
     var tappedItemIndex = args.index;
     var repos = reposList.getItem(tappedItemIndex);
 

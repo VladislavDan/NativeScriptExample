@@ -1,8 +1,8 @@
-<Page loaded="loaded">
+<Page loaded="reposListLoaded">
     <ActionBar title="GitHub Repositories" class="action-bar"/>
     <StackLayout orientation="vertical">
-        <SearchBar id="sb_repos" hint="Search repositories" submit="onSubmit" clear="onClear"/>
-        <ListView id="lv_repos" items="{{ reposList }}" height="100%" itemTap="listViewItemTap">
+        <SearchBar id="sb_repos" hint="Search repositories" submit="reposSearchSubmit" clear="reposSearchClear"/>
+        <ListView id="lv_repos" items="{{ reposList }}" height="100%" itemTap="reposItemTap">
             <ListView.itemTemplate>
                 <Label text="{{ name }}"/>
             </ListView.itemTemplate>

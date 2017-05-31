@@ -1,0 +1,5 @@
+<Page loaded="reposWebLoaded">
+    <GridLayout>
+        <WebView src="{{ url }}" />
+    </GridLayout>
+</Page>

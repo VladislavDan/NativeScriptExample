@@ -1,7 +1,11 @@
-<Page loaded="loaded">
+<Page loaded="reposDetailsLoaded">
     <StackLayout orientation="vertical">
         <Image src="{{ avatar }}"/>
-        <Label text="{{ name }}" tap="onTap"/>
+        <Label text="{{ name }}" />
         <Label text="{{ description }}" />
+        <StackLayout orientation="horizontal">
+            <Button text="Open in browser" tap="openReposBrowserTap" />
+            <Button text="Open in viewer" tap="openReposViewerTap" />
+        </StackLayout>
     </StackLayout>
 </Page>

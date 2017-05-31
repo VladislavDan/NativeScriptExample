@@ -1,5 +1,4 @@
 var Rx = require("rxjs/Rx");
-var Observable = require('data/observable').Observable;
 var observableModule = require("data/observable");
 
 function ReposDetailViewModel() {
@@ -7,7 +6,8 @@ function ReposDetailViewModel() {
     var viewModel = new observableModule.fromObject({
         avatar: "",
         name: "sdfdsf",
-        description: ""
+        description: "",
+        url: ""
     });
 
     viewModel.setDataChannel = new Rx.BehaviorSubject();
@@ -20,10 +20,15 @@ function ReposDetailViewModel() {
             console.log("caught error" + error);
         })
         .subscribe((repos) => {
-            viewModel.set("avatar", repos.owner.avatar_url);
-            viewModel.set("name", repos.name);
-            viewModel.set("description", repos.description);
+            setReposData(repos);
         });
+
+    function setReposData(repos) {
+        viewModel.set("avatar", repos.owner.avatar_url);
+        viewModel.set("name", repos.name);
+        viewModel.set("description", repos.description);
+        viewModel.set("url", repos.html_url);
+    }
 
     return viewModel;
 }

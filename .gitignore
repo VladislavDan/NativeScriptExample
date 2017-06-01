@@ -1,11 +1,5 @@
-/platforms/android/build/
-
-/platforms/android/.gradle/
+/platforms/
 
 /node_modules/
 
-/platforms/android/build-tools/
-/platforms/android/libs/runtime-libs
-/platforms/android/libs
-/platforms/android/metadata
 /.idea

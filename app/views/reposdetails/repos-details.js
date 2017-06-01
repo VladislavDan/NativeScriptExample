@@ -22,20 +22,9 @@ exports.openReposBrowserTap = function () {
 };
 
 exports.openReposViewerTap = function () {
-    openWebPage(reposDetails.get("url"));
+    navUtils.openPage("views/reposweb/repos-web", {url: reposDetails.get("url")});
 };
 
 exports.goBack = function () {
     navUtils.goBack();
 };
-
-function openWebPage(url) {
-    var navigationEntry = {
-        moduleName: "views/reposweb/repos-web",
-        context: {
-            url: url
-        },
-        animated: false
-    };
-    frameModule.topmost().navigate(navigationEntry);
-}

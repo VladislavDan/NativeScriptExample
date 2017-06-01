@@ -5,7 +5,7 @@ function ReposDetailViewModel() {
 
     var viewModel = new observableModule.fromObject({
         avatar: "",
-        name: "sdfdsf",
+        name: "",
         description: "",
         url: ""
     });

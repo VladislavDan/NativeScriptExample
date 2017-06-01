@@ -1,7 +1,11 @@
 var Rx = require("rxjs/Rx");
 var observableModule = require("data/observable");
 
+var Dialog = require("./../common/dialog");
+
 function ReposDetailViewModel() {
+
+    var dialog = new Dialog();
 
     var viewModel = new observableModule.fromObject({
         avatar: "",

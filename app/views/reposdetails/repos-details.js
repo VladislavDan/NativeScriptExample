@@ -1,11 +1,12 @@
 var utilityModule = require("utils/utils");
-var frameModule = require("tns-core-modules/ui/frame");
 
 var NavUtils = require("./../utils/nav-utils");
+var Dialog = require("./../common/dialog");
 var ReposDetailViewModel = require("./repos-details-view-model");
 
 var page;
 var navUtils = new NavUtils();
+var dialog = new Dialog();
 
 var reposDetails = new ReposDetailViewModel();
 

@@ -9,6 +9,7 @@
         <StackLayout orientation="horizontal">
             <Button text="Open in browser" tap="openReposBrowserTap" />
             <Button text="Open in viewer" tap="openReposViewerTap" />
+            <Button text="Show last commit" tap="showLastCommitTap" />
         </StackLayout>
     </StackLayout>
 </Page>

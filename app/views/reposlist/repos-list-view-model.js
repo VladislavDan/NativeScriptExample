@@ -7,9 +7,12 @@ function ReposListViewModel(items) {
     var viewModel = new ObservableArray(items);
 
     var response = function () {
-        return fetch('https://api.github.com/repositories')
-            .then((respose) => {
-                return respose.json();
+        return Rx.Observable.ajax('https://api.github.com/repositories')
+            .map((result) => {
+                return result.response;
+            })
+            .catch((error) => {
+                console.log("caught error" + error);
             });
     }();
 
@@ -25,9 +28,6 @@ function ReposListViewModel(items) {
                 return searchText != ""
                     ? repos.name.indexOf(searchText) != -1
                     : true;
-            })
-            .catch((error) => {
-                console.log("caught error" + error);
             })
             .subscribe((repos) => {
                 viewModel.push(repos);

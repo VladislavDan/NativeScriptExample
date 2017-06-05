@@ -2,13 +2,15 @@
     <ActionBar title="Repositories Details" class="action-bar">
         <NavigationButton android.systemIcon="ic_menu_back" tap="goBack"/>
     </ActionBar>
-    <StackLayout orientation="vertical">
-        <Image src="{{ avatar }}" decodeWidth="400" decodeHeight="400" loadMode="async"/>
-        <Label text="{{ name }}" />
-        <Label text="{{ description }}" />
-        <StackLayout orientation="horizontal">
-            <Button text="Open in browser" tap="openReposBrowserTap" />
-            <Button text="Open in viewer" tap="openReposViewerTap" />
+    <ScrollView>
+        <StackLayout orientation="vertical">
+            <Image src="{{ avatar }}" decodeWidth="400" decodeHeight="400" loadMode="async"/>
+            <Label id = "l_repos_name_details" horizontalAlignment = "center" fontSize = "40" text="{{ name }}"/>
+            <TextView text="{{ description }}" editable="false"/>
+            <StackLayout orientation="horizontal" horizontalAlignment = "center">
+                <Button text="Open in browser" tap="openReposBrowserTap"/>
+                <Button text="Open in viewer" tap="openReposViewerTap"/>
+            </StackLayout>
         </StackLayout>
-    </StackLayout>
+    </ScrollView>
 </Page>

@@ -77,7 +77,7 @@ function ReposListViewModel(items) {
         }
     });
 
-    var insertRepos = function (response) {
+    function insertRepos(response) {
         new Sqlite(DATA_BASE, function (err, db) {
             Rx.Observable.from(response)
                 .concatMap(repos => repos)
@@ -88,21 +88,20 @@ function ReposListViewModel(items) {
                         });
                 });
         });
-    };
+    }
 
-    var updateRepos = function (response) {
+    function updateRepos(response) {
         new Sqlite(DATA_BASE, function (err, db) {
             Rx.Observable.from(response)
                 .concatMap(repos => repos)
                 .subscribe((repos) => {
                     db.execSQL("UPDATE " + TABLE + " SET name = ?, avatar = ?, description = ?, url = ? WHERE id = ?",
-                        [repos.name, repos.owner.avatar_url, repos.description, repos.html_url, repos.id], function (err, id) {
+                        [repos.name, repos.owner.avatar_url, repos.description, repos.html_url, repos.id], function (err, count) {
                             console.log("The new record updated: " + repos.id);
-                            console.log("The new record updated error: " + err);
                         });
                 });
         });
-    };
+    }
 
     return viewModel;
 }

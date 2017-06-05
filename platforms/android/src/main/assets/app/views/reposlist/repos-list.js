@@ -1,10 +1,13 @@
 var observableModule = require("data/observable");
-var frameModule = require("tns-core-modules/ui/frame");
+var permissions = require("nativescript-permissions");
+var connectivity = require("connectivity");
 
 var ReposListViewModel = require("./repos-list-view-model");
 var NavUtils = require("./../utils/nav-utils");
+var Dialog = require("./../common/dialog");
 
 var navUtils = new NavUtils();
+var dialog = new Dialog();
 var page;
 
 var reposList = new ReposListViewModel([]);
@@ -25,13 +28,34 @@ exports.reposSearchSubmit = function (args) {
 };
 
 exports.reposSearchClear = function () {
-    reposList.clearChannel.next();
-    reposList.loadChannel.next("")
+    updateData();
 };
 
-exports.reposItemTap = function(args) {
+exports.reposItemTap = function (args) {
     var tappedItemIndex = args.index;
     var repos = reposList.getItem(tappedItemIndex);
 
     navUtils.openPage("views/reposdetails/repos-details", {repos: repos});
 };
+
+connectivity.startMonitoring(function onConnectionTypeChanged(newConnectionType) {
+    switch (newConnectionType) {
+        case connectivity.connectionType.none:
+            dialog.show("Connection Error", "Not connection. Enable internet connection in settings");
+            console.log("Connection type changed to none.");
+            break;
+        case connectivity.connectionType.wifi:
+            updateData();
+            console.log("Connection type changed to WiFi.");
+            break;
+        case connectivity.connectionType.mobile:
+            updateData();
+            console.log("Connection type changed to mobile.");
+            break;
+    }
+});
+
+function updateData() {
+    reposList.clearChannel.next();
+    reposList.loadChannel.next("");
+}

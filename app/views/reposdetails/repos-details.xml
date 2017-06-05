@@ -3,7 +3,7 @@
         <NavigationButton android.systemIcon="ic_menu_back" tap="goBack"/>
     </ActionBar>
     <StackLayout orientation="vertical">
-        <Image src="{{ avatar }}"/>
+        <Image src="{{ avatar }}" decodeWidth="400" decodeHeight="400" loadMode="async"/>
         <Label text="{{ name }}" />
         <Label text="{{ description }}" />
         <StackLayout orientation="horizontal">

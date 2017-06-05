@@ -42,7 +42,7 @@ connectivity.startMonitoring(function onConnectionTypeChanged(newConnectionType)
     switch (newConnectionType) {
         case connectivity.connectionType.none:
             dialog.show("Connection Error", "Not connection. Enable internet connection in settings");
-            console.log("Connection type changed to none.");
+            updateData();
             break;
         case connectivity.connectionType.wifi:
             updateData();
@@ -55,7 +55,12 @@ connectivity.startMonitoring(function onConnectionTypeChanged(newConnectionType)
     }
 });
 
-function updateData() {
-    reposList.clearChannel.next();
-    reposList.loadChannel.next("");
+function updateData(isOffline) {
+    if(isOffline){
+        reposList.clearChannel.next();
+        reposList.loadOfflineChannel.next("");
+    }else{
+        reposList.clearChannel.next();
+        reposList.loadChannel.next("");
+    }
 }

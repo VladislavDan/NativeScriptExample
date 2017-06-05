@@ -28,10 +28,10 @@ function ReposDetailViewModel() {
         });
 
     function setReposData(repos) {
-        viewModel.set("avatar", repos.owner.avatar_url);
+        viewModel.set("avatar", repos.avatar);
         viewModel.set("name", repos.name);
         viewModel.set("description", repos.description);
-        viewModel.set("url", repos.html_url);
+        viewModel.set("url", repos.url);
     }
 
     return viewModel;

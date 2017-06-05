@@ -6,7 +6,7 @@
         <ListView id="lv_repos" items="{{ reposList }}" height="100%" itemTap="reposItemTap">
             <ListView.itemTemplate>
                 <FlexboxLayout orientation="vertical">
-                    <Image id="i_repos_avatar" src="{{ owner.avatar_url }}" decodeWidth="400" decodeHeight="400" loadMode="async"/>
+                    <Image id="i_repos_avatar" src="{{ avatar }}" decodeWidth="400" decodeHeight="400" loadMode="async"/>
                     <Label id="l_repos_name" text="{{ name }}"/>
                 </FlexboxLayout>
             </ListView.itemTemplate>

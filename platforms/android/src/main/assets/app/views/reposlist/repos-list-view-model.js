@@ -2,10 +2,15 @@ var Rx = require("rxjs/Rx");
 var imageCacheModule = require("tns-core-modules/ui/image-cache");
 var imageSource = require("tns-core-modules/image-source");
 var fs = require("tns-core-modules/file-system");
+var Sqlite = require("nativescript-sqlite");
 
 var ObservableArray = require("data/observable-array").ObservableArray;
 
 function ReposListViewModel(items) {
+
+    const DATA_BASE = "repos.db";
+
+    const TABLE = "ReposTable";
 
     var viewModel = new ObservableArray(items);
 
@@ -19,29 +24,49 @@ function ReposListViewModel(items) {
             });
     }();
 
+    var createTable = function () {
+        new Sqlite(DATA_BASE, function (err, db) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE + " (id INTEGER PRIMARY KEY ASC, name TEXT, avatar TEXT, description TEXT, url TEXT)", [], function (err) {
+                console.log("TABLE CREATED");
+            });
+        });
+    }();
+
+    var cacheRepos = function () {
+        new Sqlite(DATA_BASE, function (err, db) {
+            db.all("SELECT * FROM " + TABLE + " ORDER BY id", [], function (err, rs) {
+                rs.length > 0 ? updateRepos(response) : insertRepos(response);
+            });
+        });
+    }();
+
     viewModel.loadChannel = new Rx.BehaviorSubject();
 
     viewModel.loadChannel.subscribe((searchText) => {
-        Rx.Observable.from(response)
-            .map((response) => {
-                return response;
-            })
-            .concatMap(repos => repos)
-            .filter((repos) => {
-                return searchText != ""
-                    ? repos.name.indexOf(searchText) != -1
-                    : true;
-            })
-            //.map((repos) => {
-            //    getAvatarFromCache(repos);
-            //    return repos;
-            //})
-            .catch((error) => {
-                console.log("caught error" + error);
-            })
-            .subscribe((repos) => {
-                viewModel.push(repos);
-            });
+        new Sqlite(DATA_BASE, function (err, db) {
+            Rx.Observable.from(db.all("SELECT * FROM " + TABLE + " ORDER BY id", []))
+                .concatMap(repos => repos)
+                .map((repos) => {
+                    return {
+                        id: repos[0],
+                        name: repos[1],
+                        avatar: repos[2],
+                        description: repos[3],
+                        url: repos[4]
+                    }
+                })
+                .filter((repos) => {
+                    return searchText != ""
+                        ? repos.name.indexOf(searchText) != -1
+                        : true;
+                })
+                .catch((error) => {
+                    console.log("caught error" + error);
+                })
+                .subscribe((repos) => {
+                    viewModel.push(repos);
+                });
+        });
     });
 
     viewModel.clearChannel = new Rx.BehaviorSubject();
@@ -52,27 +77,32 @@ function ReposListViewModel(items) {
         }
     });
 
-    function getAvatarFromCache(repos) {
-        var cache = new imageCacheModule.Cache();
-        cache.maxRequests = 5;
-        cache.enableDownload();
+    var insertRepos = function (response) {
+        new Sqlite(DATA_BASE, function (err, db) {
+            Rx.Observable.from(response)
+                .concatMap(repos => repos)
+                .subscribe((repos) => {
+                    db.execSQL("INSERT INTO " + TABLE + " (id, name, avatar, description, url) VALUES (?,?,?,?,?)",
+                        [repos.id, repos.name, repos.owner.avatar_url, repos.description, repos.html_url], function (err, id) {
+                            console.log("The new record id is inserted: " + id);
+                        });
+                });
+        });
+    };
 
-        var image = cache.get(repos.owner.avatar_url);
-        if (image) {
-            repos.owner.avatar_url = imageSource.fromNativeSource(image);
-        } else {
-            cache.push({
-                key: repos.owner.avatar_url,
-                url: repos.owner.avatar_url,
-                completed: (image, key) => {
-                    if (repos.owner.avatar_url === key) {
-                        repos.owner.avatar_url = imageSource.fromNativeSource(image);
-                    }
-                }
-            });
-        }
-        cache.disableDownload();
-    }
+    var updateRepos = function (response) {
+        new Sqlite(DATA_BASE, function (err, db) {
+            Rx.Observable.from(response)
+                .concatMap(repos => repos)
+                .subscribe((repos) => {
+                    db.execSQL("UPDATE " + TABLE + " SET name = ?, avatar = ?, description = ?, url = ? WHERE id = ?",
+                        [repos.name, repos.owner.avatar_url, repos.description, repos.html_url, repos.id], function (err, id) {
+                            console.log("The new record updated: " + repos.id);
+                            console.log("The new record updated error: " + err);
+                        });
+                });
+        });
+    };
 
     return viewModel;
 }

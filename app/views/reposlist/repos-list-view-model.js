@@ -1,7 +1,4 @@
 var Rx = require("rxjs/Rx");
-var imageCacheModule = require("tns-core-modules/ui/image-cache");
-var imageSource = require("tns-core-modules/image-source");
-var fs = require("tns-core-modules/file-system");
 var Sqlite = require("nativescript-sqlite");
 
 var ObservableArray = require("data/observable-array").ObservableArray;
@@ -44,25 +41,7 @@ function ReposListViewModel(items) {
 
     viewModel.loadChannel.subscribe((searchText) => {
         new Sqlite(DATA_BASE, function (err, db) {
-            Rx.Observable.from(db.all("SELECT * FROM " + TABLE + " ORDER BY id", []))
-                .concatMap(repos => repos)
-                .map((repos) => {
-                    return {
-                        id: repos[0],
-                        name: repos[1],
-                        avatar: repos[2],
-                        description: repos[3],
-                        url: repos[4]
-                    }
-                })
-                .filter((repos) => {
-                    return searchText != ""
-                        ? repos.name.indexOf(searchText) != -1
-                        : true;
-                })
-                .catch((error) => {
-                    console.log("caught error" + error);
-                })
+            getFilteredRepos(db, TABLE, searchText)
                 .subscribe((repos) => {
                     viewModel.push(repos);
                 });
@@ -78,29 +57,59 @@ function ReposListViewModel(items) {
     });
 
     function insertRepos(response) {
+        Rx.Observable.from(response)
+            .concatMap(repos => repos)
+            .subscribe((repos) => {
+                insertReposDatabase(db, repos);
+            });
+    }
+
+    function insertReposDatabase(db, repos) {
         new Sqlite(DATA_BASE, function (err, db) {
-            Rx.Observable.from(response)
-                .concatMap(repos => repos)
-                .subscribe((repos) => {
-                    db.execSQL("INSERT INTO " + TABLE + " (id, name, avatar, description, url) VALUES (?,?,?,?,?)",
-                        [repos.id, repos.name, repos.owner.avatar_url, repos.description, repos.html_url], function (err, id) {
-                            console.log("The new record id is inserted: " + id);
-                        });
+            db.execSQL("INSERT INTO " + TABLE + " (id, name, avatar, description, url) VALUES (?,?,?,?,?)",
+                [repos.id, repos.name, repos.owner.avatar_url, repos.description, repos.html_url], function (err, id) {
+                    console.log("The new record id is inserted: " + id);
                 });
         });
     }
 
     function updateRepos(response) {
+        return Rx.Observable.from(response)
+            .concatMap(repos => repos)
+            .subscribe((repos) => {
+                updateReposDatabase(repos);
+            });
+    }
+
+    function updateReposDatabase(repos) {
         new Sqlite(DATA_BASE, function (err, db) {
-            Rx.Observable.from(response)
-                .concatMap(repos => repos)
-                .subscribe((repos) => {
-                    db.execSQL("UPDATE " + TABLE + " SET name = ?, avatar = ?, description = ?, url = ? WHERE id = ?",
-                        [repos.name, repos.owner.avatar_url, repos.description, repos.html_url, repos.id], function (err, count) {
-                            console.log("The new record updated: " + repos.id);
-                        });
+            db.execSQL("UPDATE " + TABLE + " SET name = ?, avatar = ?, description = ?, url = ? WHERE id = ?",
+                [repos.name, repos.owner.avatar_url, repos.description, repos.html_url, repos.id], function (err, count) {
+                    console.log("The new record updated: " + repos.id);
                 });
         });
+    }
+
+    function getFilteredRepos(db, TABLE, searchText) {
+        return Rx.Observable.from(db.all("SELECT * FROM " + TABLE + " ORDER BY id", []))
+            .concatMap(repos => repos)
+            .map((repos) => {
+                return {
+                    id: repos[0],
+                    name: repos[1],
+                    avatar: repos[2],
+                    description: repos[3],
+                    url: repos[4]
+                }
+            })
+            .filter((repos) => {
+                return searchText != ""
+                    ? repos.name.indexOf(searchText) != -1
+                    : true;
+            })
+            .catch((error) => {
+                console.log("caught error" + error);
+            });
     }
 
     return viewModel;

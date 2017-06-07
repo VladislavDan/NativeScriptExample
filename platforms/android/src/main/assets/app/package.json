@@ -1,5 +1,1 @@
-{
-  "main": "app.js",
-  "name": "nativescript-template-tutorial",
-  "version": "3.0.0"
-}
+{"main":"./tns_modules/nativescript-unit-test-runner/app.js","name":"nativescript-template-tutorial","version":"3.0.0"}

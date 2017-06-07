@@ -11,15 +11,7 @@ function ReposListViewModel(items) {
 
     var viewModel = new ObservableArray(items);
 
-    var response = function () {
-        return Rx.Observable.ajax('https://api.github.com/repositories')
-            .map((result) => {
-                return result.response;
-            })
-            .catch((error) => {
-                console.log("caught error" + error);
-            });
-    }();
+    var response = getResponse();
 
     var createTable = function () {
         new Sqlite(DATA_BASE, function (err, db) {
@@ -56,8 +48,25 @@ function ReposListViewModel(items) {
         }
     });
 
+    function getResponse() {
+        return Rx.Observable.ajax('https://api.github.com/repositories')
+            .map((result) => {
+                return result.response;
+            }).catch((error) => {
+                console.log("caught error" + error);
+            });
+    }
+
+    function updateRepos(response) {
+        return Rx.Observable.from(response)
+            .concatMap(repos => repos)
+            .subscribe((repos) => {
+                updateReposDatabase(repos);
+            });
+    }
+
     function insertRepos(response) {
-        Rx.Observable.from(response)
+        return Rx.Observable.from(response)
             .concatMap(repos => repos)
             .subscribe((repos) => {
                 insertReposDatabase(db, repos);
@@ -71,14 +80,6 @@ function ReposListViewModel(items) {
                     console.log("The new record id is inserted: " + id);
                 });
         });
-    }
-
-    function updateRepos(response) {
-        return Rx.Observable.from(response)
-            .concatMap(repos => repos)
-            .subscribe((repos) => {
-                updateReposDatabase(repos);
-            });
     }
 
     function updateReposDatabase(repos) {
@@ -111,6 +112,10 @@ function ReposListViewModel(items) {
                 console.log("caught error" + error);
             });
     }
+
+    viewModel.__test__ = {
+        response: getResponse
+    };
 
     return viewModel;
 }

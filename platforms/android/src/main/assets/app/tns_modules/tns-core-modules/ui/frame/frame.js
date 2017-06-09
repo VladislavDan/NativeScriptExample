@@ -37,7 +37,9 @@ function onFragmentShown(fragment) {
         }
     }
     var isBack = currentNavigationContext ? currentNavigationContext.isBackNavigation : false;
-    frame._addView(page);
+    if (page.parent !== frame) {
+        frame._addView(page);
+    }
     if (!frame.isLoaded) {
         frame._currentEntry = entry;
         frame.onLoaded();

@@ -7,6 +7,16 @@ var Match;
     Match.Dynamic = true;
     Match.Static = false;
 })(Match || (Match = {}));
+function getNodeDirectSibling(node) {
+    if (!node.parent || !node.parent.getChildIndex || !node.parent.getChildAt) {
+        return null;
+    }
+    var nodeIndex = node.parent.getChildIndex(node);
+    if (nodeIndex === 0) {
+        return null;
+    }
+    return node.parent.getChildAt(nodeIndex - 1);
+}
 function SelectorProperties(specificity, rarity, dynamic) {
     if (dynamic === void 0) { dynamic = false; }
     return function (cls) {
@@ -234,21 +244,27 @@ var Selector = (function (_super) {
     function Selector(selectors) {
         var _this = _super.call(this) || this;
         _this.selectors = selectors;
+        var supportedCombinator = [undefined, " ", ">", "+"];
+        var siblingGroup;
         var lastGroup;
         var groups = [];
         selectors.reverse().forEach(function (sel) {
-            switch (sel.combinator) {
-                case undefined:
-                case " ":
-                    groups.push(lastGroup = []);
-                case ">":
-                    lastGroup.push(sel);
-                    break;
-                default:
-                    throw new Error("Unsupported combinator \"" + sel.combinator + "\".");
+            if (supportedCombinator.indexOf(sel.combinator) === -1) {
+                throw new Error("Unsupported combinator \"" + sel.combinator + "\".");
             }
+            if (sel.combinator === undefined || sel.combinator === " ") {
+                groups.push(lastGroup = [siblingGroup = []]);
+            }
+            if (sel.combinator === ">") {
+                lastGroup.push(siblingGroup = []);
+            }
+            siblingGroup.push(sel);
         });
-        _this.groups = groups.map(function (g) { return new Selector.ChildGroup(g); });
+        _this.groups = groups.map(function (g) {
+            return new Selector.ChildGroup(g.map(function (sg) {
+                return new Selector.SiblingGroup(sg);
+            }));
+        });
         _this.last = selectors[0];
         _this.specificity = selectors.reduce(function (sum, sel) { return sel.specificity + sum; }, 0);
         _this.dynamic = selectors.some(function (sel) { return sel.dynamic; });
@@ -331,10 +347,10 @@ exports.Selector = Selector;
             this.dynamic = selectors.some(function (sel) { return sel.dynamic; });
         }
         ChildGroup.prototype.match = function (node) {
-            return this.selectors.every(function (sel, i) { return (i === 0 ? node : node = node.parent) && sel.match(node); }) ? node : null;
+            return this.selectors.every(function (sel, i) { return (i === 0 ? node : node = node.parent) && !!sel.match(node); }) ? node : null;
         };
         ChildGroup.prototype.mayMatch = function (node) {
-            return this.selectors.every(function (sel, i) { return (i === 0 ? node : node = node.parent) && sel.mayMatch(node); }) ? node : null;
+            return this.selectors.every(function (sel, i) { return (i === 0 ? node : node = node.parent) && !!sel.mayMatch(node); }) ? node : null;
         };
         ChildGroup.prototype.trackChanges = function (node, map) {
             this.selectors.forEach(function (sel, i) { return (i === 0 ? node : node = node.parent) && sel.trackChanges(node, map); });
@@ -342,6 +358,23 @@ exports.Selector = Selector;
         return ChildGroup;
     }());
     Selector.ChildGroup = ChildGroup;
+    var SiblingGroup = (function () {
+        function SiblingGroup(selectors) {
+            this.selectors = selectors;
+            this.dynamic = selectors.some(function (sel) { return sel.dynamic; });
+        }
+        SiblingGroup.prototype.match = function (node) {
+            return this.selectors.every(function (sel, i) { return (i === 0 ? node : node = getNodeDirectSibling(node)) && sel.match(node); }) ? node : null;
+        };
+        SiblingGroup.prototype.mayMatch = function (node) {
+            return this.selectors.every(function (sel, i) { return (i === 0 ? node : node = getNodeDirectSibling(node)) && sel.mayMatch(node); }) ? node : null;
+        };
+        SiblingGroup.prototype.trackChanges = function (node, map) {
+            this.selectors.forEach(function (sel, i) { return (i === 0 ? node : node = getNodeDirectSibling(node)) && sel.trackChanges(node, map); });
+        };
+        return SiblingGroup;
+    }());
+    Selector.SiblingGroup = SiblingGroup;
 })(Selector = exports.Selector || (exports.Selector = {}));
 exports.Selector = Selector;
 var RuleSet = (function () {

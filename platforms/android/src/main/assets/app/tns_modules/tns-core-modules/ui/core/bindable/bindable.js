@@ -20,20 +20,26 @@ var contextKey = "context";
 var paramsRegex = /\[\s*(['"])*(\w*)\1\s*\]/;
 var bc = binding_builder_1.bindingConstants;
 var emptyArray = [];
+var propertiesCache = {};
 function getProperties(property) {
-    var result = emptyArray;
-    if (property) {
-        var parentsMatches = property.match(binding_builder_1.parentsRegex);
-        result = property.replace(binding_builder_1.parentsRegex, "parentsMatch")
-            .replace(/\]/g, "")
-            .split(/\.|\[/);
-        var parentsMatchesCounter = 0;
-        for (var i = 0, resultLength = result.length; i < resultLength; i++) {
-            if (result[i] === "parentsMatch") {
-                result[i] = parentsMatches[parentsMatchesCounter++];
-            }
+    if (!property) {
+        return emptyArray;
+    }
+    var result = propertiesCache[property];
+    if (result) {
+        return result;
+    }
+    var parentsMatches = property.match(binding_builder_1.parentsRegex);
+    result = property.replace(binding_builder_1.parentsRegex, "parentsMatch")
+        .replace(/\]/g, "")
+        .split(/\.|\[/);
+    var parentsMatchesCounter = 0;
+    for (var i = 0, resultLength = result.length; i < resultLength; i++) {
+        if (result[i] === "parentsMatch") {
+            result[i] = parentsMatches[parentsMatchesCounter++];
         }
     }
+    propertiesCache[property] = result;
     return result;
 }
 function getEventOrGestureName(name) {
@@ -124,8 +130,9 @@ var Binding = (function () {
             this.unbind();
             return;
         }
-        if (data.value) {
-            this.update(data.value);
+        var value = data.value;
+        if (value !== null && value !== undefined) {
+            this.update(value);
         }
         else {
             this.clearBinding();
@@ -210,9 +217,15 @@ var Binding = (function () {
         var objectsAndProperties = this.resolveObjectsAndProperties(source.get(), sourceProperty);
         var prop = parentProperies || "";
         for (var i = 0, length_1 = objectsAndProperties.length; i < length_1; i++) {
-            prop += "$" + objectsAndProperties[i].property;
+            var propName = objectsAndProperties[i].property;
+            prop += "$" + propName;
             var currentObject = objectsAndProperties[i].instance;
-            if (!this.propertyChangeListeners.has(prop) && currentObject instanceof observable_1.Observable) {
+            if (!this.propertyChangeListeners.has(prop) && currentObject instanceof observable_1.Observable && currentObject._isViewBase) {
+                weak_event_listener_1.addWeakEventListener(currentObject, propName + "Change", this.onSourcePropertyChanged, this);
+                weak_event_listener_1.addWeakEventListener(currentObject, observable_1.Observable.propertyChangeEvent, this.onSourcePropertyChanged, this);
+                this.propertyChangeListeners.set(prop, currentObject);
+            }
+            else if (!this.propertyChangeListeners.has(prop) && currentObject instanceof observable_1.Observable) {
                 weak_event_listener_1.addWeakEventListener(currentObject, observable_1.Observable.propertyChangeEvent, this.onSourcePropertyChanged, this);
                 this.propertyChangeListeners.set(prop, currentObject);
             }

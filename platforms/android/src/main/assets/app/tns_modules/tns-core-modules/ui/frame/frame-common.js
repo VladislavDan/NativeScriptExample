@@ -17,7 +17,7 @@ function onLivesync(args) {
             g.errorPage = undefined;
         }
         try {
-            reloadPage();
+            g.__onLiveSyncCore();
         }
         catch (ex) {
             g.errorPage = builder_1.parse("<Page><ScrollView><Label text=\"" + ex + "\" textWrap=\"true\" style=\"color: red;\" /></ScrollView></Page>");
@@ -63,6 +63,7 @@ function reloadPage() {
     }
 }
 exports.reloadPage = reloadPage;
+global.__onLiveSyncCore = reloadPage;
 function resolvePageFromEntry(entry) {
     var page;
     if (entry.create) {

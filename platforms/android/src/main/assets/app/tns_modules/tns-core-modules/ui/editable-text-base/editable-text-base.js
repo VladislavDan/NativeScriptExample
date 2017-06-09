@@ -24,7 +24,7 @@ function initializeEditTextListeners() {
         };
         EditTextListenersImpl.prototype.afterTextChanged = function (editable) {
             var owner = this.owner;
-            if (!owner) {
+            if (!owner || owner._inputTypeChange) {
                 return;
             }
             switch (owner.updateTextTrigger) {
@@ -93,10 +93,13 @@ var EditableTextBase = (function (_super) {
     function EditableTextBase() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
+    EditableTextBase.prototype._onReturnPress = function () {
+    };
     EditableTextBase.prototype.createNativeView = function () {
         initializeEditTextListeners();
         var editText = new android.widget.EditText(this._context);
         this._configureEditText(editText);
+        this._inputType = editText.getInputType();
         var listeners = new EditTextListeners(this);
         editText.addTextChangedListener(listeners);
         editText.setOnFocusChangeListener(listeners);
@@ -111,7 +114,10 @@ var EditableTextBase = (function (_super) {
         this._keyListenerCache = nativeView.getKeyListener();
     };
     EditableTextBase.prototype._disposeNativeView = function (force) {
-        this.nativeView.listener.owner = null;
+        var nativeView = this.nativeView;
+        nativeView.listener.owner = null;
+        nativeView.setInputType(this._inputType);
+        this._keyListenerCache = null;
     };
     EditableTextBase.prototype.dismissSoftInput = function () {
         utils_1.ad.dismissSoftInput(this.nativeView);
@@ -125,7 +131,13 @@ var EditableTextBase = (function (_super) {
     };
     EditableTextBase.prototype._setInputType = function (inputType) {
         var nativeView = this.nativeView;
-        nativeView.setInputType(inputType);
+        try {
+            this._inputTypeChange = true;
+            nativeView.setInputType(inputType);
+        }
+        finally {
+            this._inputTypeChange = false;
+        }
         var listener = nativeView.getKeyListener();
         if (listener) {
             this._keyListenerCache = listener;

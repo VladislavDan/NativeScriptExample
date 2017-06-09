@@ -4,6 +4,7 @@ function __export(m) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var text_base_1 = require("../text-base");
 __export(require("../text-base"));
+var TextView;
 var Label = (function (_super) {
     __extends(Label, _super);
     function Label() {
@@ -20,7 +21,10 @@ var Label = (function (_super) {
         configurable: true
     });
     Label.prototype.createNativeView = function () {
-        return new android.widget.TextView(this._context);
+        if (!TextView) {
+            TextView = android.widget.TextView;
+        }
+        return new TextView(this._context);
     };
     Label.prototype.initNativeView = function () {
         _super.prototype.initNativeView.call(this);

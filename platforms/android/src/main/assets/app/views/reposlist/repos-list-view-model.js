@@ -11,11 +11,12 @@ function ReposListViewModel(items) {
 
     var viewModel = new ObservableArray(items);
 
-    var response = getResponse();
+    var response = getResponseChannel();
 
     var createTable = function () {
         new Sqlite(DATA_BASE, function (err, db) {
             db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE + " (id INTEGER PRIMARY KEY ASC, name TEXT, avatar TEXT, description TEXT, url TEXT)", [], function (err) {
+                console.log("TABLE CREATED ERROR " + err);
                 console.log("TABLE CREATED");
             });
         });
@@ -48,7 +49,7 @@ function ReposListViewModel(items) {
         }
     });
 
-    function getResponse() {
+    function getResponseChannel() {
         return Rx.Observable.ajax('https://api.github.com/repositories')
             .map((result) => {
                 return result.response;
@@ -60,6 +61,9 @@ function ReposListViewModel(items) {
     function updateRepos(response) {
         return Rx.Observable.from(response)
             .concatMap(repos => repos)
+            .catch((error) => {
+                console.log("caught error" + error);
+            })
             .subscribe((repos) => {
                 updateReposDatabase(repos);
             });
@@ -68,16 +72,25 @@ function ReposListViewModel(items) {
     function insertRepos(response) {
         return Rx.Observable.from(response)
             .concatMap(repos => repos)
+            .catch((error) => {
+                console.log("caught error" + error);
+            })
             .subscribe((repos) => {
-                insertReposDatabase(db, repos);
+                insertReposDatabase(repos);
             });
     }
 
-    function insertReposDatabase(db, repos) {
+    function insertReposDatabase(repos) {
         new Sqlite(DATA_BASE, function (err, db) {
             db.execSQL("INSERT INTO " + TABLE + " (id, name, avatar, description, url) VALUES (?,?,?,?,?)",
                 [repos.id, repos.name, repos.owner.avatar_url, repos.description, repos.html_url], function (err, id) {
-                    console.log("The new record id is inserted: " + id);
+                    viewModel.push({
+                        id: repos.id,
+                        name: repos.name,
+                        avatar: repos.owner.avatar_url,
+                        description: repos.description,
+                        url: repos.html_url
+                    });
                 });
         });
     }
@@ -86,14 +99,17 @@ function ReposListViewModel(items) {
         new Sqlite(DATA_BASE, function (err, db) {
             db.execSQL("UPDATE " + TABLE + " SET name = ?, avatar = ?, description = ?, url = ? WHERE id = ?",
                 [repos.name, repos.owner.avatar_url, repos.description, repos.html_url, repos.id], function (err, count) {
-                    console.log("The new record updated: " + repos.id);
+                    console.log("The new record is updated error: " + err);
+                    console.log("The new record id is updated: " + count);
                 });
         });
     }
 
     function getFilteredRepos(db, TABLE, searchText) {
         return Rx.Observable.from(db.all("SELECT * FROM " + TABLE + " ORDER BY id", []))
-            .concatMap(repos => repos)
+            .concatMap((repos) =>{
+                return repos;
+            })
             .map((repos) => {
                 return {
                     id: repos[0],
@@ -114,7 +130,8 @@ function ReposListViewModel(items) {
     }
 
     viewModel.__test__ = {
-        response: getResponse
+        getResponseChannel: getResponseChannel,
+        getFilteredRepos: getFilteredRepos
     };
 
     return viewModel;

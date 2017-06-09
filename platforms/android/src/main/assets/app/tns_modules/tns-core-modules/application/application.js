@@ -149,6 +149,17 @@ function initLifecycleCallbacks() {
                 androidApp.startActivity = activity;
             }
             androidApp.notify({ eventName: ActivityCreated, object: androidApp, activity: activity, bundle: savedInstanceState });
+            if (application_common_1.hasListeners(application_common_1.displayedEvent)) {
+                var rootView_1 = activity.findViewById(android.R.id.content);
+                var onGlobalLayoutListener_1 = new android.view.ViewTreeObserver.OnGlobalLayoutListener({
+                    onGlobalLayout: function () {
+                        application_common_1.notify({ eventName: application_common_1.displayedEvent, object: androidApp, activity: activity });
+                        var viewTreeObserver = rootView_1.getViewTreeObserver();
+                        viewTreeObserver.removeOnGlobalLayoutListener(onGlobalLayoutListener_1);
+                    }
+                });
+                rootView_1.getViewTreeObserver().addOnGlobalLayoutListener(onGlobalLayoutListener_1);
+            }
         },
         onActivityDestroyed: function (activity) {
             if (activity === androidApp.foregroundActivity) {
